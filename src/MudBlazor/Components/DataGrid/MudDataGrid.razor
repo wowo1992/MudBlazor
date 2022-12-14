@@ -240,43 +240,6 @@
             }
         }
     </div>
-    <MudDialog @bind-IsVisible="isEditFormOpen" Options="EditDialogOptions">
-        <TitleContent>
-            <MudText Typo="Typo.h6">
-                Edit
-            </MudText>
-        </TitleContent>
-        <DialogContent>
-            <MudForm FieldChanged="FormFieldChanged">
-                @foreach (var column in RenderedColumns)
-                {
-                    var cell = new Cell<T>(this, column, _editingItem);
-
-                    if (column.EditTemplate != null)
-                    {
-                        @column.EditTemplate(cell.cellContext)
-                    }
-                    else
-                    {
-                        if (column.dataType == typeof(string))
-                        {
-                            <MudTextField T="string" Label="@column.computedTitle" Value="@cell.valueString" ValueChanged="@cell.StringValueChangedAsync" Margin="@Margin.Dense"
-                                Required="true" Variant="@Variant.Outlined" Disabled="@(!column.IsEditable || ReadOnly)" Class="mt-4" />
-                        }
-                        else if (column.isNumber)
-                        {
-                            <MudNumericField T="double?" Label="@column.computedTitle" Value="@cell.valueNumber" ValueChanged="@cell.NumberValueChangedAsync" Margin="@Margin.Dense"
-                                Required="true" Variant="@Variant.Outlined" Disabled="@(!column.IsEditable || ReadOnly)" Class="mt-4" />
-                        }
-                    }
-                }
-            </MudForm>
-        </DialogContent>
-        <DialogActions>
-            <MudButton Variant="Variant.Filled" Color="Color.Default" OnClick="@CancelEditingItemAsync" Class="px-10">Cancel</MudButton>
-            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="@CommitItemChangesAsync" Class="px-10">Save</MudButton>
-        </DialogActions>
-    </MudDialog>
 </CascadingValue>
 
 @code {
