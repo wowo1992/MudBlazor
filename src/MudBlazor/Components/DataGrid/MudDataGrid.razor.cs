@@ -14,12 +14,16 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Components;
 using Microsoft.AspNetCore.Components.Web;
 using MudBlazor.Utilities;
+using MudBlazor.Components.DataGrid;
 
 namespace MudBlazor
 {
     [RequiresUnreferencedCode(CodeMessage.SerializationUnreferencedCodeMessage)]
     public partial class MudDataGrid<T> : MudComponentBase
     {
+        [Inject]
+        public IDialogService DialogService { get; set; }
+
         private int _currentPage = 0;
         internal int? _rowsPerPage;
         private bool _isFirstRendered = false;
@@ -117,7 +121,6 @@ namespace MudBlazor
         internal T editingSourceItem;
 
         internal T _previousEditingItem;
-        internal bool isEditFormOpen;
 
         // converters
         private Converter<bool, bool?> _oppositeBoolConverter = new Converter<bool, bool?>
@@ -947,7 +950,6 @@ namespace MudBlazor
 
                 await CommittedItemChanges.InvokeAsync(editingSourceItem);
                 ClearEditingItem();
-                isEditFormOpen = false;
             }
         }
 
@@ -1135,7 +1137,15 @@ namespace MudBlazor
             _editingItem = JsonSerializer.Deserialize<T>(JsonSerializer.Serialize(item));
             StartedEditingItemEvent?.Invoke();
             await StartedEditingItem.InvokeAsync(_editingItem);
-            isEditFormOpen = true;
+            DialogService.Show<DataGridEditDialog<T>>(string.Empty, new DialogParameters {
+                { nameof(DataGridEditDialog<T>.EditDialogOptions), EditDialogOptions},
+                { nameof(DataGridEditDialog<T>.FormFieldChanged), FormFieldChanged},
+                { nameof(DataGridEditDialog<T>.RenderedColumns), RenderedColumns},
+                { nameof(DataGridEditDialog<T>.CancelEditingItemAsync), CancelEditingItemAsync},
+                { nameof(DataGridEditDialog<T>.CommitItemChangesAsync), CommitItemChangesAsync},
+                { nameof(DataGridEditDialog<T>.ReadOnly), ReadOnly},
+                { nameof(DataGridEditDialog<T>.EditingItem), _editingItem}
+            });
         }
 
         /// <summary>
@@ -1146,7 +1156,6 @@ namespace MudBlazor
             EditingCancelledEvent?.Invoke();
             await CancelledEditingItem.InvokeAsync(_editingItem);
             ClearEditingItem();
-            isEditFormOpen = false;
         }
 
         /// <summary>
